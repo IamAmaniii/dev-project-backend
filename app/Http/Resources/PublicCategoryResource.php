@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MenuCategoryResource extends JsonResource
+class PublicCategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,7 +18,7 @@ class MenuCategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $this->image ? asset($this->image) : null,
-            'description' => $this->description
+            'description' => $this->description,
         ];
     }
 }

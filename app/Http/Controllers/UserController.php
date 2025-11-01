@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -24,6 +25,7 @@ class UserController extends Controller
             'email' => $validatedData['email'],
             'phone' => $validatedData['phone'],
             'business_name' => $validatedData['business_name'],
+            'slug' => Str::slug($validatedData['business_name']),
             'tin' => $validatedData['tin'],
             'password' => Hash::make($validatedData['password'])
         ]);
@@ -55,5 +57,15 @@ class UserController extends Controller
             'token' => $token->accessToken
         ], 200);
         
+    }
+
+    public function logout(){
+        $token = Auth::user()->token();
+
+        $token->revoke();
+
+        return response()->json([
+            'messgae' => 'Bye'
+        ], 200);
     }
 }

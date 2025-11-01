@@ -22,7 +22,7 @@ class MenuItemSeeder extends Seeder
                 'item_name' => 'HH' . $category->name,
                 'price' => rand(1, 1000),
                 'tax_percentage' => rand(1, 100),
-                'photo' => 'images/MenuItem/' . $category->name . '_item' . 'jpg'
+                'photo' => 'storage/images/MenuItem/' . $category->name . '_item' . '.jpg'
             ]);
         }
     }

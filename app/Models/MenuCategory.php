@@ -10,6 +10,11 @@ class MenuCategory extends Model
         'user_id',
         'name',
         'image',
-        'describtion'
+        'description'
     ];
+
+    public function items()
+    {
+        return $this->hasMany(MenuItem::class, 'category_id');
+    }
 }

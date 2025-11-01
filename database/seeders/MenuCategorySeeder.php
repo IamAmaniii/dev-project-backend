@@ -21,8 +21,8 @@ class MenuCategorySeeder extends Seeder
             DB::table('menu_categories')->insert([
                 'user_id' => $user->id,
                 'name' => $categories[$user->id - 1],
-                'image' => 'images/MenuCategory/' . $categories[$user->id - 1] . '.jpg',
-                'describtion' => 'No describtion for now'
+                'image' => 'storage/images/MenuCategory/' . $categories[$user->id - 1] . '.jpg',
+                'description' => 'No describtion for now'
             ]);
         }
     }

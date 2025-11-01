@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->uniqid();
             $table->string('business_name')->uniqid();
+            $table->string('slug')->unique();
             $table->integer('tin')->uniqid();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

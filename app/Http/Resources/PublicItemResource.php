@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\MenuCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MenuItemResource extends JsonResource
+class PublicItemResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,16 +15,12 @@ class MenuItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'=> $this->id,
-            'category_name' => $this->category->name,
-            'item_name' => $this->item_name,
+            'id' => $this->id,
+            'name' => $this->item_name,
             'price' => $this->price,
             'tax_percentage' => $this->tax_percentage,
-            'photo' => $this->photo ? asset($this->photo) : null
+            'photo' => $this->photo ? asset($this->photo) : null,
+            'category_id' => $this->category_id,
         ];
-    }
-
-    public function category(){
-        return $this->belongsTo(MenuCategory::class);
     }
 }

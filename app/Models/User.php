@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'business_name',
+        'slug',
         'tin',
         'password',
     ];
@@ -48,5 +49,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function menuCategories(){
+        return $this->hasMany(MenuCategory::class, 'user_id');
     }
 }

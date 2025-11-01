@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'email' => 'abcde@gmail.com',
                 'phone' => '0911111111',
                 'business_name' => 'ABC Restaurant',
+                'slug' => Str::slug('ABC Restaurant'),
                 'tin' => '1254896320',
                 'password' => Hash::make('password1')
             ],
@@ -28,6 +29,7 @@ class UserSeeder extends Seeder
                 'email' => 'klmno@gmail.com',
                 'phone' => '0922222222',
                 'business_name' => 'KLM Cafe',
+                'slug' => Str::slug('KLM Cafe'),
                 'tin' => '1254896320',
                 'password' => Hash::make('password2')
             ],
@@ -36,6 +38,7 @@ class UserSeeder extends Seeder
                 'email' => 'ouvwx@gmail.com',
                 'phone' => '0933333333',
                 'business_name' => 'OUV Hotel',
+                'slug' => Str::slug('OUV Hotel'),
                 'tin' => '1254896320',
                 'password' => Hash::make('password3')
             ]

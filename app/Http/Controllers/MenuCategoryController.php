@@ -6,14 +6,16 @@ use App\Http\Resources\MenuCategoryResource;
 use App\Models\MenuCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class MenuCategoryController extends Controller
 {
     public function store(Request $request){
         $validatedData = $request->validate([
             'name' => 'required',
-            'images' => '',
-            'describtion' => ''
+            'image' => 'nullable|string',
+            'description' => 'nullable|string'
         ]);
 
         $user = Auth::user();
@@ -28,24 +30,59 @@ class MenuCategoryController extends Controller
             ],422 );
         }
 
-        MenuCategory::create([
-            'user_id' => $user->id,
-            ...$validatedData
-        ]);
+        if (!empty($validatedData['image'])) {
+            $imageData = $validatedData['image'];
+
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                $imageData = base64_decode($imageData);
+                $extension = strtolower($type[1]);
+
+                $filename = 'category_' . Str::random(10) . '.' . $extension;
+                $path = 'images/MenuCategory/' . $filename;
+
+                Storage::disk('public')->put($path, $imageData);
+
+                $validatedData['image'] = 'storage/' . $path;
+            } else {
+                return response()->json([
+                    'message' => 'Invalid image format'
+                ], 422);
+            }
+        }
+
+        $validatedData['user_id'] = $user->id;
+
+        MenuCategory::create($validatedData);
 
         return response()->json([
             'message' => 'Successfully created a new category',
         ],201 );
     }
 
-    public function index(){
+    public function index(Request $request){
         $user = Auth::user();
 
-        $categories = MenuCategory::where('user_id', $user->id)->get();
+        $search = $request->query('search');
+        $perPage = $request->query('per_page', 10);
+
+        $query = MenuCategory::where('user_id', $user->id);
+
+        if($search){
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $categories = $query->paginate($perPage);
 
         return response()->json([
-            'message' => 'Successfully retrived data',
-            'data' => MenuCategoryResource::collection($categories)
+            'message' => 'Successfully retrived menu categories',
+            'data' => MenuCategoryResource::collection($categories),
+            'meta' => [
+                'current_page' => $categories->currentPage(),
+                'last_page' => $categories->lastPage(),
+                'per_page' => $categories->perPage(),
+                'total' => $categories->total()
+            ]
         ]);
     }
 
@@ -54,45 +91,70 @@ class MenuCategoryController extends Controller
 
         $category = MenuCategory::where('id', $id)
                                 ->where('user_id', $user->id)
-                                 ->firstOrFail();
+                                ->firstOrFail();
 
         $validatedData = $request->validate([
-            'name' => 'sometimes|string|min:2',
-            'image' => 'sometimes|string',
-            'describtion' => 'sometimes|string'
+            'name' => 'required|min:2|string',
+            'image' => 'nullable',
+            'description' => 'nullable|string'
         ]);
-
         
-        if (isset($validatedData['name'])) {
+        if($validatedData['name']) {
             $checkNameExists = MenuCategory::where('user_id', $user->id)
                                             ->where('name', $validatedData['name'])
                                             ->first();
 
-            if($checkNameExists){
-                return response()->json([
-                    'message' => 'The category name is already taken'
-                ],409 );
+            if(!$checkNameExists){
+                $category->update([
+                    'name' => $validatedData['name']
+                ]);
             }
+
         }
 
-        if (isset($validatedData['describtion'])) {
+        if (isset($validatedData['description'])) {
             $checkNameExists = MenuCategory::where('user_id', $user->id)
-                                            ->where('describtion', $validatedData['describtion'])
+                                            ->where('description', $validatedData['description'])
                                             ->first();
 
-            if($checkNameExists){
-                return response()->json([
-                    'message' => 'The category describtion is already taken'
-                ],409 );
+            if(!$checkNameExists){
+                $category->update([
+                    'description' => $validatedData['description']
+                ]);
             }
+
         }
 
-        $category->update($validatedData);
+        if (!empty($validatedData['image'])) {
+            $imageData = $validatedData['image'];
+
+            if (Str::startsWith($imageData, 'data:image')) {
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                    $imageData = base64_decode($imageData);
+                    $extension = strtolower($type[1]);
+
+                    $filename = 'category_' . Str::random(10) . '.' . $extension;
+                    $path = 'images/MenuCategory/' . $filename;
+
+                    Storage::disk('public')->put($path, $imageData);
+
+                    $validatedData['image'] = 'storage/' . $path;
+                } else {
+                    return response()->json([
+                        'message' => 'Invalid image format'
+                    ], 422);
+                }
+            }
+
+            $category->update([
+                'image' => $validatedData['image']
+            ]);
+        }
 
         return response()->json([
             'message' => 'Category updated successfully'
         ], 200);
-
     }
 
     public function destroy($id){
